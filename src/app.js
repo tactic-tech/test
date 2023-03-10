@@ -17,12 +17,12 @@ var io = require('socket.io')(server, {
     console.log('connection');
     //spicific classroom
     socket.on('classroomNotification', function (data) {
-      socket.emit('classroom_'+data.id, data );
+      socket.broadcast.emit('classroom_'+data.id, data );
 
     });
     
     socket.on('notification', function (data) {
-      socket.emit('notification_'+data.reciver_id, data );
+      socket.broadcast.emit('notification_'+data.reciver_id, data );
     });
 
     
