@@ -20,7 +20,7 @@ var io = require('socket.io')(server, {
     socket.on('notification', function (data) {
       //socket.join(data.room);
       
-      console.log("room is " + data.room)
+      //console.log("room is " + data.room)
     });
     
      
