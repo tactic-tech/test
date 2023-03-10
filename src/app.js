@@ -15,13 +15,16 @@ var io = require('socket.io')(server, {
 
  io.on('connection', (socket) => {
     console.log('connection');
-     
-    //reciver joinRoom 
-    socket.on('notification', function (data) {
-      //socket.join(data.room);
-      
-      //console.log("room is " + data.room)
+    //spicific classroom
+    socket.on('classroomNotification', function (data) {
+      socket.emit('classroom_'+data.id, data );
+
     });
+    
+    socket.on('notification', function (data) {
+      socket.emit('notification_'+data.reciver_id, data );
+    });
+
     
      
   
