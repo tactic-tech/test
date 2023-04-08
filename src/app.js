@@ -27,7 +27,10 @@ io.on('connection', (socket) => {
   });
 
   socket.on('notification', function (data) {
+    console.log('hhhhhhhhhhhhhhhh')
     socket.broadcast.emit('notification_' + data.reciver_id, data);
+   // socket.emit('notification_' + data.reciver_id, data);
+
   });
   //webrtc
   socket.on("join-room", (data) => {
@@ -55,22 +58,22 @@ io.on('connection', (socket) => {
   let chatRoomName = "";
   let chatRoomUsers = [];
   socket.on('joinChatRoom', function (data) {
-
-    chatRoomName = data.room;
+ 
+  chatRoomName = data.room;
     const userData = data.user;
     if (!chatRoomUsers.find((item) => item.user.id === userData.id && item.room === chatRoomName)) {
-      console.log("joinChat++" + data.user.id);
+      console.log("joinChat+++++++++++++++++" + data.user.id);
       socket.join(data.room)
       chatRoomUsers.push({ id: socket.id, user: userData, room: chatRoomName })
-      socket.in(chatRoomName).emit("userJoin", data);
+      socket.to(chatRoomName).emit("userJoin", data);
+
     };
     const RoomUsers = chatRoomUsers.filter(
       (user) => user.room === chatRoomName
     );
-    socket.in(chatRoomName).emit("chatroom_users", RoomUsers);
+    socket.to(chatRoomName).emit("chatroom_users", RoomUsers);
     socket.emit("chatroom_users", RoomUsers);
-
-    
+     
     socket.on("chatroom_users", (data) => {
       console.log("chatroom_users" + RoomUsers);
     });
@@ -80,13 +83,13 @@ io.on('connection', (socket) => {
     
     socket.on('typing', function (data) {
     //  socket.broadcast.to(data.room).emit('typing', data)
-    io.in(data.room).emit('typingMessage', data); // Send to all users in room, including sender
+    socket.to(data.room).emit('typingMessage', data); // Send to all users in room, including sender
 
     })
-    socket.on('SendMessage', function (data) {
+    socket.on('sendMessage', function (data) {
       console.log("message:" + data.message);
       //socket.broadcast.to(data.room).emit('receiveMessage', data)
-      io.in(data.room).emit('receiveMessage', data); // Send to all users in room, including sender
+      socket.to(data.room).emit('receiveMessage', data); // Send to all users in room, including sender
 
     })
     socket.on("disconnect", () => {
