@@ -98,7 +98,33 @@ io.on('connection', (socket) => {
       socket.to(data.room).emit("userLeave", data.id);
     });
   })
+  socket.on('joinConversation', function (data) {
+ 
+  chatRoomName = data.room;
+    const userData = data.user;
+     socket.join(data.room)
+    //  socket.on("chatroom_users", (data) => {
+      console.log("chatroom_users" + userData);
+    // });
+    socket.on("userJoin", (data) => {
+      console.log("userJoin" + data);
+    });
+    
+    socket.on('typeMessage', function (data) {
+     socket.to(data.room).emit('writeMessage', data); // Send to all users in room, including sender
 
+    })
+    socket.on('newMessage', function (data) {
+       //socket.broadcast.to(data.room).emit('receiveMessage', data)
+      socket.to(data.room).emit('receiveNewMessage', data); 
+ 
+    })
+    socket.on("disconnect", () => {
+      socket.leave(data.room);
+      console.log("leaveChat" + data);
+      socket.to(data.room).emit("userLeave", data.id);
+    });
+  })
 
 
 });
