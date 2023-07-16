@@ -90,11 +90,16 @@ io.on('connection', (socket) => {
     console.log("chatroom_users" + data.room);
 
     const userData = data.user;
-    if (!conversationRoomUsers.find((item) =>
-      item.user.id === userData.id && item.room === conversationRoomName)) {
-      socket.join(data.room)
-      conversationRoomUsers.push({ id: socket.id, user: userData, room: conversationRoomName })
-    }
+
+    // if (!conversationRoomUsers.find((item) =>
+    //   item.user.id === userData.id && item.room === conversationRoomName)) {
+    //   socket.join(data.room)
+    //   conversationRoomUsers.push({ id: socket.id, user: userData, room: conversationRoomName })
+    // }
+    conversationRoomUsers = conversationRoomUsers.filter(child => parseInt(child.user.id) !== userData.id);
+       socket.join(data.room)
+        conversationRoomUsers.push({ id: socket.id, user: userData, room: conversationRoomName })
+
     console.log("chatroom_users" + userData);
     socket.on("userJoin", (data) => {
       console.log("userJoin" + data);
