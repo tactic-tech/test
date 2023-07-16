@@ -1,6 +1,6 @@
 const express = require('express')
 app = express()
-const { v4: uuidV4 } = require('uuid')
+const { v4: uuidV4, stringify } = require('uuid')
 const users = {};
 const socketToRoom = {};
 
@@ -87,20 +87,24 @@ io.on('connection', (socket) => {
   socket.on('joinConversation', function (data) {
 
     conversationRoomName = data.room;
-    console.log("chatroom_users" + data.room);
-
+ 
     const userData = data.user;
 
-    // if (!conversationRoomUsers.find((item) =>
-    //   item.user.id === userData.id && item.room === conversationRoomName)) {
-    //   socket.join(data.room)
-    //   conversationRoomUsers.push({ id: socket.id, user: userData, room: conversationRoomName })
-    // }
-    conversationRoomUsers = conversationRoomUsers.filter(child => parseInt(child.user.id) !== userData.id);
-       socket.join(data.room)
+    if (!conversationRoomUsers.find((item) =>
+      item.user.id === userData.id && item.room === conversationRoomName)) {
+        socket.join(data.room) 
+         conversationRoomUsers.filter((child)=>{
+          parseInt(child.user.id) === userData.id
+          socket.leave(child.room)
+        } );
         conversationRoomUsers.push({ id: socket.id, user: userData, room: conversationRoomName })
+    }
+    // conversationRoomUsers = conversationRoomUsers.filter(child => parseInt(child.user.id) !== userData.id);
+    //    socket.join(data.room)
+    //     conversationRoomUsers.push({ id: socket.id, user: userData, room: conversationRoomName })
 
-    console.log("chatroom_users" + userData);
+    console.log("chatroom_users" + JSON.stringify(conversationRoomUsers));
+    console.log("chatroom_users" + conversationRoomUsers.length);
     socket.on("userJoin", (data) => {
       console.log("userJoin" + data);
     });
