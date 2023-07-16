@@ -29,28 +29,7 @@ io.on('connection', (socket) => {
   socket.on('notification', function (data) {
     console.log('hhhhhhhhhhhhhhhh')
     socket.broadcast.emit('notification_' + data.reciver_id, data);
-   // socket.emit('notification_' + data.reciver_id, data);
 
-  });
-  //webrtc
-  socket.on("join-room", (data) => {
-    socket.join(data.roomId);
-    console.log(data.myname);
-    socket.to(data.roomId).emit("user-connected", data.id, data.myname);
-
-    socket.on("messagesend", (data) => {
-      console.log(data.message);
-      io.to(data.roomId).emit("createMessage", data.message);
-    });
-
-    socket.on("tellName", (data) => {
-      console.log(data.myname);
-      socket.to(data.roomId).emit("AddName", data.myname);
-    });
-
-    socket.on("disconnect", () => {
-      socket.to(data.roomId).emit("user-disconnected", data.id);
-    });
   });
 
   //chat app
@@ -58,8 +37,8 @@ io.on('connection', (socket) => {
   let chatRoomName = "";
   let chatRoomUsers = [];
   socket.on('joinChatRoom', function (data) {
- 
-  chatRoomName = data.room;
+
+    chatRoomName = data.room;
     const userData = data.user;
     if (!chatRoomUsers.find((item) => item.user.id === userData.id && item.room === chatRoomName)) {
       console.log("joinChat+++++++++++++++++" + data.user.id);
@@ -73,17 +52,17 @@ io.on('connection', (socket) => {
     );
     socket.to(chatRoomName).emit("chatroom_users", RoomUsers);
     socket.emit("chatroom_users", RoomUsers);
-     
+
     socket.on("chatroom_users", (data) => {
       console.log("chatroom_users" + RoomUsers);
     });
     socket.on("userJoin", (data) => {
       console.log("userJoin" + data);
     });
-    
+
     socket.on('typing', function (data) {
-    //  socket.broadcast.to(data.room).emit('typing', data)
-    socket.to(data.room).emit('typingMessage', data); // Send to all users in room, including sender
+      //  socket.broadcast.to(data.room).emit('typing', data)
+      socket.to(data.room).emit('typingMessage', data); // Send to all users in room, including sender
 
     })
     socket.on('sendMessage', function (data) {
@@ -98,26 +77,42 @@ io.on('connection', (socket) => {
       socket.to(data.room).emit("userLeave", data.id);
     });
   })
+
+
+
+  //conversation one to one room
+
+  let conversationRoomName = "";
+  let conversationRoomUsers = [];
   socket.on('joinConversation', function (data) {
- 
-  chatRoomName = data.room;
+
+    conversationRoomName = data.room;
+    console.log("chatroom_users" + data.room);
+
     const userData = data.user;
-     socket.join(data.room)
-    //  socket.on("chatroom_users", (data) => {
-      console.log("chatroom_users" + userData);
-    // });
+    if (!conversationRoomUsers.find((item) =>
+      item.user.id === userData.id && item.room === conversationRoomName)) {
+      socket.join(data.room)
+      conversationRoomUsers.push({ id: socket.id, user: userData, room: conversationRoomName })
+    }
+    console.log("chatroom_users" + userData);
     socket.on("userJoin", (data) => {
       console.log("userJoin" + data);
     });
-    
+
     socket.on('typeMessage', function (data) {
-     socket.to(data.room).emit('writeMessage', data); // Send to all users in room, including sender
+      socket.to(data.room).emit('writeMessage', data); // Send to all users in room, including sender
 
     })
     socket.on('newMessage', function (data) {
-       //socket.broadcast.to(data.room).emit('receiveMessage', data)
-      socket.to(data.room).emit('receiveNewMessage', data); 
- 
+      //socket.broadcast.to(data.room).emit('receiveMessage', data)
+      if (!conversationRoomUsers.find((item) =>
+        item.user.id === data.conversation_with && item.room === data.conversation)) {
+        socket.to(data.room).emit('receiveNewMessage', data);
+      } else {
+        socket.broadcast.emit('notification_' + data.conversation_with, { data: data, type: 'conversation' });
+      }
+
     })
     socket.on("disconnect", () => {
       socket.leave(data.room);
