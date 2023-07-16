@@ -114,13 +114,16 @@ io.on('connection', (socket) => {
 
     })
     socket.on('newMessage', function (data) {
-      //socket.broadcast.to(data.room).emit('receiveMessage', data)
-      if (!conversationRoomUsers.find((item) =>
-        item.user.id === data.conversation_with && item.room === data.conversation)) {
+    socket.to(data.room).emit('receiveNewMessage', data);
+      if (conversationRoomUsers.find((item) =>
+        item.user.id === data.conversation_with && item.room === data.room)) {
         socket.to(data.room).emit('receiveNewMessage', data);
-      } else {
-        socket.broadcast.emit('notification_' + data.conversation_with, { data: data, type: 'conversation' });
-      }
+        console.log('hi'+data.conversation_with)
+      } else{
+     socket.broadcast.emit('notification_' + data.conversation_with,
+      { data: data, type: 'conversation' });
+      console.log(JSON.stringify(conversationRoomUsers))
+     }
 
     })
     socket.on("disconnect", () => {
