@@ -115,9 +115,8 @@ io.on('connection', (socket) => {
     })
     socket.on('newMessage', function (data) {
     socket.to(data.room).emit('receiveNewMessage', data);
-      
-     socket.broadcast.emit('notification_' + data.conversation_with,
-      { data: data, type: 'conversation' });
+    //  socket.broadcast.emit('notification_' + data.conversation_with,
+    //   { data: data, type: 'conversation' });
      })
     socket.on("disconnect", () => {
       socket.leave(data.room);
